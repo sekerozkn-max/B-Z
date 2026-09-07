@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ff5d87"><link rel="manifest" href="manifest.json">
+<title>BİZ ❤️ Çiftler Oyunu</title>
+<style>
+:root{--p:#ff5d87;--p2:#ff8eaa;--ink:#272332;--muted:#777181;--bg:#fff8fa;--line:#eadfe4}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fff5f7,#f5f3ff);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+.app{max-width:460px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:84px}.top{padding:18px 20px;display:flex;justify-content:space-between;align-items:center}.logo{font-size:25px;font-weight:900}.pink{color:var(--p)}
+.screen{padding:10px 20px}.hidden{display:none}.hero{min-height:260px;border-radius:28px;padding:25px;background:linear-gradient(145deg,#ff6a91,#bc79ff);color:#fff;display:flex;flex-direction:column;justify-content:end;box-shadow:0 16px 45px #d8b9c7}.hero h1{font-size:39px;margin:0 0 8px}.hero p{margin:0 0 20px}.btn{width:100%;padding:15px;border-radius:16px;border:0;font-weight:850;background:var(--p);color:white}.hero .btn{background:white;color:var(--p)}.title{font-size:20px;font-weight:850;margin:22px 0 12px}.card{background:white;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 8px 25px rgba(40,20,30,.06)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.mode{min-height:126px;text-align:left;border-radius:20px;padding:16px;border:1px solid var(--line)}.mode b{display:block;margin:8px 0 4px}.mode small{color:#696372}.m1{background:#ffe6ee}.m2{background:#e8edff}.m3{background:#fff0dd}.m4{background:#f0e7ff}.m5{background:#ffe1df}.m6{background:#ddf7ec}.input{width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);outline:none}.input:focus{border-color:var(--p)}.row{display:flex;gap:10px}.row>*{flex:1}.code{font-size:30px;letter-spacing:5px;font-weight:900;text-align:center;padding:15px;border:2px dashed #ff9ab3;border-radius:18px;color:var(--p);background:#fff5f7}.status{padding:10px 13px;border-radius:12px;background:#f5f1f4;color:#625c6b;font-size:13px}.online{background:#e4f8ed;color:#197548}.q{font-size:22px;font-weight:850;line-height:1.3}.choice{width:100%;text-align:left;background:white;border:1px solid var(--line);padding:14px;border-radius:15px;margin-top:9px}.choice.selected{border:2px solid var(--p);background:#fff0f4}.reveal{padding:12px;border-radius:15px;background:#f8f5ff;margin-top:12px}.scoreline{display:flex;justify-content:space-between;font-weight:800}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:460px;width:100%;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:9px 5px calc(9px + env(safe-area-inset-bottom));z-index:5}.nav button{border:0;background:none;color:#777181;font-size:11px}.nav span{display:block;font-size:20px}.toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:#28242f;color:#fff;padding:11px 15px;border-radius:13px;display:none;z-index:20}
+</style>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+<div class="app">
+<div class="top"><div class="logo">BİZ<span class="pink">♥</span></div><div>👩‍❤️‍👨</div></div>
+
+<section id="home" class="screen">
+<div class="hero"><h1>Bizim Hikâyemiz</h1><p>İki telefon. Tek oyun. Bakalım birbirinizi ne kadar tanıyorsunuz?</p><button class="btn" onclick="show('connect')">Oyuna Başla →</button></div>
+<div class="title">Bağlantı durumu</div><div id="homeStatus" class="status">Henüz bir çift oturumu başlatılmadı.</div>
+<div class="title">Oyun Modları</div><div class="grid">
+<button class="mode m1" onclick="pickMode('tanı')">❤️<b>Bizi Tanı</b><small>Birbirinizi tanıyın</small></button>
+<button class="mode m2" onclick="pickMode('tahmin')">🧠<b>Tahmin Et</b><small>Aynı düşündünüz mü?</small></button>
+<button class="mode m3" onclick="pickMode('anı')">📖<b>Anılarımız</b><small>Hatırlıyor musunuz?</small></button>
+<button class="mode m4" onclick="pickMode('eğlence')">😂<b>Eğlence</b><small>Görev ve kahkaha</small></button>
+<button class="mode m5" onclick="pickMode('flört')">🔥<b>Flört</b><small>Daha yakın</small></button>
+<button class="mode m6" onclick="pickMode('düello')">🏆<b>Düello</b><small>Rekabet başlasın</small></button>
+</div>
+</section>
+
+<section id="connect" class="screen hidden">
+<div class="title">👩‍❤️‍👨 Çiftinizi bağlayın</div>
+<div class="card">
+<h3>1. telefon — Odayı oluştur</h3><p class="status">Biriniz “Oda Oluştur”a basacak. Çıkan 6 haneli kodu diğer telefona gönderecek.</p>
+<button class="btn" onclick="createRoom()">Oda Oluştur</button>
+<div id="hostBox" class="hidden" style="margin-top:15px"><div class="small">Partnerine bu kodu gönder:</div><div id="roomCode" class="code"></div><div id="hostStatus" class="status">Partner bekleniyor…</div></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
+<h3>2. telefon — Odaya katıl</h3><input id="joinCode" class="input" maxlength="6" placeholder="6 haneli kod">
+<div style="height:9px"></div><button class="btn" onclick="joinRoom()">Koda Katıl</button>
+<div id="joinStatus" class="status" style="margin-top:10px">Kod girilmedi.</div>
+</div>
+</section>
+
+<section id="lobby" class="screen hidden">
+<div class="title">🎉 Çiftiniz hazır!</div><div class="card">
+<div class="status online">● İki telefon bağlı</div><h2 id="pairNames">Özkan & Partner</h2>
+<p class="small">Oyun modu: <b id="chosenMode">Bizi Tanı</b></p>
+<button class="btn" id="hostStart" onclick="startNetworkGame()">Oyunu Başlat</button>
+<p id="guestWait" class="status hidden">Oda sahibi oyunu başlatınca soru gelecek.</p>
+</div>
+</section>
+
+<section id="play" class="screen hidden">
+<div class="scoreline"><span id="playerLabel">Sen</span><span id="scoreText">0 - 0</span></div><div style="height:9px"></div><div class="status" id="turnStatus">Cevabını seç.</div><div style="height:12px"></div>
+<div class="card"><div class="small" id="qCounter">Soru 1/5</div><div style="height:10px"></div><div class="q" id="question"></div><div id="choices"></div><div id="reveal" class="reveal hidden"></div></div>
+<div style="height:12px"></div><button id="answerBtn" class="btn" onclick="submitAnswer()" disabled>Cevabımı Gönder</button>
+</section>
+
+<section id="result" class="screen hidden">
+<div class="card" style="text-align:center"><div style="font-size:54px">🏆</div><h1 id="resultTitle">Oyun bitti!</h1><p id="resultSub">Skorlarınız</p><div class="grid"><div class="card"><b id="myFinal">0</b><br><small>Sen</small></div><div class="card"><b id="partnerFinal">0</b><br><small>Partner</small></div></div><br><button class="btn" onclick="show('home')">Ana Sayfa</button></div>
+</section>
+
+<section id="profile" class="screen hidden">
+<div class="title">Çift Profili</div><div class="card"><label>Senin adın</label><input id="myName" class="input" value="Özkan"><br><br><label>Partnerinin adı</label><input id="partnerName" class="input" value="Partner"><br><br><button class="btn" onclick="saveNames()">Kaydet ❤️</button></div>
+</section>
+
+<nav class="nav"><button onclick="show('home')"><span>⌂</span>Ana Sayfa</button><button onclick="show('connect')"><span>♥</span>Oyna</button><button onclick="show('result')"><span>🏆</span>Skor</button><button onclick="show('profile')"><span>⚙</span>Ayarlar</button></nav>
+<div id="toast" class="toast"></div>
+</div>
+
+<script>
+const questions={
+tanı:[
+["Partnerinin ideal tatil tercihi hangisi?",["🏖️ Deniz tatili","🌲 Bungalov","✈️ Yurt dışı","🏕️ Kamp"]],
+["Partnerinin boş bir pazar günü tercihi?",["Evde film","Arkadaşlarla dışarı","Doğada","Alışveriş"]],
+["Partnerini en çok ne mutlu eder?",["Sürpriz","Kaliteli zaman","Hediye","Güzel söz"]],
+["Partnerin hangi tatlıyı seçer?",["Çikolata","Cheesecake","Dondurma","Baklava"]],
+["Partnerin bir süper güç seçse?",["Uçmak","Görünmezlik","Zihin okumak","Zamanda yolculuk"]]],
+tahmin:[
+["Partnerin 1 milyon TL kazansa ilk ne yapardı?",["Tatile gider","Araba alır","Yatırım yapar","Ev alır"]],
+["Partnerin stresliyken neye ihtiyaç duyar?",["Yalnızlık","Sarılmak","Konuşmak","Uyumak"]],
+["Hayalindeki ev nerede olurdu?",["Deniz kenarı","Şehir merkezi","Doğa içinde","Yurt dışında"]],
+["Romantik akşamda hangisini seçer?",["Evde yemek","Şık restoran","Sahilde yürüyüş","Film gecesi"]],
+["Birlikte bir yere kaçsanız?",["Kapadokya","Fethiye","Roma","Japonya"]]],
+anı:[
+["İlk buluşmamızda en çok ne konuşmuştuk?",["İş","Aile","Hobiler","Gelecek"]],
+["Birlikte yaptığımız en eğlenceli şey?",["Tatil","Konser","Yemek","Gece dışarı"]],
+["İlk fotoğrafımız nerede çekildi?",["Ev","Restoran","Sokak","Tatil"]],
+["İlk kim daha çok heyecanlanmıştı?",["Ben","Partnerim","İkimiz","Hiç kimse 😄"]],
+["En unutulmaz ortak anımız hangisi?",["Tatil","Kutlama","Sürpriz","Macera"]]],
+eğlence:[
+["Partnerinin taklidini kaç saniye yap?",["10","20","30","60"]],
+["Partnerine tek kelimeyle lakap tak.",["Tatlı","Komik","Romantik","Sürpriz"]],
+["30 saniye göz göze bakın.",["Görev","Görev","Görev","Görev"]],
+["Partnerinin en sık kullandığı kelime?",["Tamam","Aşk","Hayır","Bilmiyorum"]],
+["Birlikte komik selfie çekin.",["Çektik!","Çektik!","Çektik!","Çektik!"]]],
+flört:[
+["Partnerinde en çekici bulduğun özellik?",["Gülüş","Gözler","Ses","Kişilik"]],
+["Partnerine 20 saniye sarıl.",["❤️","❤️","❤️","❤️"]],
+["Partnerine sevdiğin 3 şeyi söyle.",["Görev","Görev","Görev","Görev"]],
+["İlk görüşte senden hoşlandığını ne zaman anladın?",["Hemen","İlk sohbet","İlk buluşma","Sonradan"]],
+["Bir sonraki romantik randevuyu kim planlasın?",["Ben","Partnerim","Birlikte","Sürpriz"]]],
+düello:[
+["Partnerinin en sevdiği içecek?",["Kahve","Çay","Kola","Su"]],
+["Hanginiz daha geç hazırlanır?",["Ben","Partnerim","İkimiz","Duruma göre"]],
+["Hanginiz daha çok mesaj atar?",["Ben","Partnerim","Eşit","Hiç kimse"]],
+["Hanginiz daha iyi yemek yapar?",["Ben","Partnerim","Eşit","Sipariş 😄"]],
+["Hanginiz daha rekabetçi?",["Ben","Partnerim","İkimiz","Kesinlikle partnerim 😄"]]]
+};
+let peer=null,conn=null,isHost=false,myId="",room="",mode="tanı",qIndex=0,myChoice=null,myScore=0,otherScore=0,pending=null;
+const modeNames={tanı:"❤️ Bizi Tanı",tahmin:"🧠 Tahmin Et",anı:"📖 Anılarımız",eğlence:"😂 Eğlence",flört:"🔥 Flört",düello:"🏆 Düello"};
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden")}
+function toast(t){const x=document.getElementById("toast");x.textContent=t;x.style.display="block";setTimeout(()=>x.style.display="none",1800)}
+function pickMode(m){mode=m;document.getElementById("chosenMode").textContent=modeNames[m];show("connect")}
+function newPeer(){peer=new Peer();peer.on("open",id=>{myId=id});peer.on("connection",c=>{if(isHost){conn=c;setupConn();}});peer.on("error",e=>toast("Bağlantı hatası: "+e.type))}
+function createRoom(){isHost=true;if(peer)peer.destroy();newPeer();setTimeout(()=>{let code=Math.random().toString(36).slice(2,8).toUpperCase();room=code;peer.destroy();peer=new Peer("biz-"+code.toLowerCase());peer.on("open",()=>{document.getElementById("hostBox").classList.remove("hidden");document.getElementById("roomCode").textContent=code;document.getElementById("hostStatus").textContent="Kod hazır. Partnerin girsin…"});peer.on("connection",c=>{conn=c;setupConn()});peer.on("error",e=>toast("Oda açılamadı: "+e.type))},250)}
+function joinRoom(){let code=document.getElementById("joinCode").value.trim().toLowerCase();if(code.length<6)return toast("6 haneli kodu gir.");isHost=false;if(peer)peer.destroy();newPeer();setTimeout(()=>{conn=peer.connect("biz-"+code,{reliable:true});setupConn();document.getElementById("joinStatus").textContent="Bağlanıyor…"},500)}
+function setupConn(){if(!conn)return;conn.on("open",()=>{document.getElementById("homeStatus").textContent="● Partner bağlı";document.getElementById("homeStatus").className="status online";if(isHost){conn.send({t:"hello",hostName:localStorage.getItem("myName")||"Özkan"});show("lobby");}else{conn.send({t:"join",name:localStorage.getItem("myName")||"Partner"});show("lobby");document.getElementById("hostStart").classList.add("hidden");document.getElementById("guestWait").classList.remove("hidden")}});conn.on("data",handle);conn.on("close",()=>toast("Partner bağlantısı kesildi."))}
+function handle(msg){
+ if(msg.t==="hello"){document.getElementById("pairNames").textContent=(msg.hostName||"Özkan")+" & "+(localStorage.getItem("myName")||"Partner")}
+ if(msg.t==="join"){document.getElementById("pairNames").textContent=(localStorage.getItem("myName")||"Özkan")+" & "+(msg.name||"Partner");toast("Partner katıldı ❤️")}
+ if(msg.t==="start"){mode=msg.mode;qIndex=0;myScore=0;otherScore=0;show("play");renderQuestion()}
+ if(msg.t==="answer"){pending=msg; if(isHost)maybeResolve()}
+ if(msg.t==="resolved"){applyResolved(msg)}
+}
+function startNetworkGame(){if(!isHost||!conn||!conn.open)return toast("Partner bağlantısı hazır değil.");qIndex=0;myScore=0;otherScore=0;conn.send({t:"start",mode});show("play");renderQuestion()}
+function renderQuestion(){let q=questions[mode][qIndex];myChoice=null;pending=null;document.getElementById("qCounter").textContent=`Soru ${qIndex+1}/5`;document.getElementById("question").textContent=q[0];document.getElementById("turnStatus").textContent="Cevabını seç ve gönder.";document.getElementById("reveal").classList.add("hidden");document.getElementById("answerBtn").disabled=true;let box=document.getElementById("choices");box.innerHTML="";q[1].forEach((c,i)=>{let b=document.createElement("button");b.className="choice";b.textContent=String.fromCharCode(65+i)+"  "+c;b.onclick=()=>{document.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");myChoice=i;document.getElementById("answerBtn").disabled=false};box.appendChild(b)});document.getElementById("scoreText").textContent=`${myScore} - ${otherScore}`}
+function submitAnswer(){if(myChoice===null)return;document.getElementById("answerBtn").disabled=true;document.getElementById("turnStatus").textContent="Cevabın gönderildi. Partner bekleniyor…";if(isHost){pending={t:"answer",choice:myChoice,side:"host"};maybeResolve()}else{conn.send({t:"answer",choice:myChoice,side:"guest"})}}
+function maybeResolve(){if(!pending||!pending.choice===undefined)return;let guestChoice=window.guestChoice;if(!guestChoice && guestChoice!==0)return;let hostChoice=isHost?pending.choice:window.hostChoice;if(hostChoice===undefined)return;let same=hostChoice===guestChoice;let result={t:"resolved",hostChoice,guestChoice,same,hs:myScore,gs:otherScore};if(same){myScore+=10;otherScore+=10}else{myScore+=0;otherScore+=0}result.hs=myScore;result.gs=otherScore;conn.send(result);applyResolved(result);window.hostChoice=undefined;window.guestChoice=undefined;pending=null}
+function applyResolved(r){if(isHost){myScore=r.hs;otherScore=r.gs}else{myScore=r.gs;otherScore=r.hs};document.getElementById("scoreText").textContent=`${myScore} - ${otherScore}`;let q=questions[mode][qIndex];document.getElementById("reveal").classList.remove("hidden");document.getElementById("reveal").innerHTML=`<b>${r.same?"❤️ Aynı cevabı verdiniz! +10":"😄 Farklı cevaplar!"}</b><br><span class="small">Sen: ${q[1][isHost?r.hostChoice:r.guestChoice]}<br>Partner: ${q[1][isHost?r.guestChoice:r.hostChoice]}</span>`;document.getElementById("turnStatus").textContent=qIndex===4?"Son soru tamamlandı.":"İkiniz de cevapladınız.";setTimeout(()=>{if(qIndex<4){qIndex++;renderQuestion()}else{finishNetwork()}},1400)}
+function finishNetwork(){show("result");document.getElementById("myFinal").textContent=myScore;document.getElementById("partnerFinal").textContent=otherScore;document.getElementById("resultTitle").textContent=myScore===otherScore?"Berabere! ❤️":myScore>otherScore?"Sen kazandın! 🏆":"Partnerin kazandı! 🏆"}
+/* Host receives guest answers; guest receives host answers through a tiny relay protocol. */
+const oldHandle=handle;
+handle=function(msg){if(msg.t==="answer"){if(msg.side==="guest"){window.guestChoice=msg.choice;if(isHost)maybeResolve()}else if(msg.side==="host"){window.hostChoice=msg.choice;if(!isHost){conn.send({t:"answer",choice:myChoice,side:"guest"});}}return}oldHandle(msg)}
+function saveNames(){localStorage.setItem("myName",document.getElementById("myName").value||"Özkan");localStorage.setItem("partnerName",document.getElementById("partnerName").value||"Partner");toast("Kaydedildi ❤️")}
+document.getElementById("myName").value=localStorage.getItem("myName")||"Özkan";document.getElementById("partnerName").value=localStorage.getItem("partnerName")||"Partner";
+</script>
+</body></html>

@@ -1,0 +1,10 @@
+{
+  "name": "BİZ – Çiftler Oyunu",
+  "short_name": "BİZ ❤️",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff8fa",
+  "theme_color": "#ff5d87",
+  "lang": "tr",
+  "icons": []
+}
