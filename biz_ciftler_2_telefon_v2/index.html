@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ff5d87">
+<meta name="app-version" content="1.1.0">
 <link rel="manifest" href="manifest.json">
 <title>BİZ ❤️ Çiftler Oyunu</title>
 <style>
@@ -17,7 +18,7 @@ onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2';
 </head>
 <body>
 <div class="app">
-<div class="top"><div class="logo">BİZ<span class="pink">♥</span></div><div>👩‍❤️‍👨</div></div>
+<div class="top"><div class="logo">BİZ<span class="pink">♥</span></div><div id="versionBadge" class="small">v1.1.0</div></div>
 <section id="home" class="screen">
 <div class="hero"><h1>Bizim Hikâyemiz</h1><p>İki telefon. Tek oyun. Bakalım birbirinizi ne kadar tanıyorsunuz?</p><button class="btn" onclick="show('connect')">Oyuna Başla →</button></div>
 <div class="title">Bağlantı durumu</div><div id="homeStatus" class="status">Henüz bir çift oturumu başlatılmadı.</div>
@@ -41,7 +42,8 @@ onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2';
 <section id="lobby" class="screen hidden"><div class="title">🎉 Çiftiniz hazır!</div><div class="card"><div class="status online">● İki telefon bağlı</div><h2 id="pairNames">Özkan & Partner</h2><p class="small">Oyun modu: <b id="chosenMode">Bizi Tanı</b></p><button class="btn" id="hostStart" onclick="startNetworkGame()">Oyunu Başlat</button><p id="guestWait" class="status hidden">Oda sahibi oyunu başlatınca soru gelecek.</p></div></section>
 <section id="play" class="screen hidden"><div class="scoreline"><span id="playerLabel">Sen</span><span id="scoreText">0 - 0</span></div><div style="height:9px"></div><div class="status" id="turnStatus">Cevabını seç.</div><div style="height:12px"></div><div class="card"><div class="small" id="qCounter">Soru 1/5</div><div style="height:10px"></div><div class="q" id="question"></div><div id="choices"></div><div id="reveal" class="reveal hidden"></div></div><div style="height:12px"></div><button id="answerBtn" class="btn" onclick="submitAnswer()" disabled>Cevabımı Gönder</button></section>
 <section id="result" class="screen hidden"><div class="card" style="text-align:center"><div style="font-size:54px">🏆</div><h1 id="resultTitle">Oyun bitti!</h1><p id="resultSub">Skorlarınız</p><div class="grid"><div class="card"><b id="myFinal">0</b><br><small>Sen</small></div><div class="card"><b id="partnerFinal">0</b><br><small>Partner</small></div></div><br><button class="btn" onclick="show('home')">Ana Sayfa</button></div></section>
-<section id="profile" class="screen hidden"><div class="title">Çift Profili</div><div class="card"><label>Senin adın</label><input id="myName" class="input" value="Özkan"><br><br><label>Partnerinin adı</label><input id="partnerName" class="input" value="Partner"><br><br><button class="btn" onclick="saveNames()">Kaydet ❤️</button></div></section>
+<section id="profile" class="screen hidden">
+<div class="card" style="margin-bottom:12px"><b>Uygulama Sürümü</b><div id="appVersionText" class="small" style="margin-top:5px">v1.1.0 • Güncel</div><button id="updateBtn" class="btn hidden" style="margin-top:10px" onclick="applyAppUpdate()">Şimdi Güncelle</button></div><div class="title">Çift Profili</div><div class="card"><label>Senin adın</label><input id="myName" class="input" value="Özkan"><br><br><label>Partnerinin adı</label><input id="partnerName" class="input" value="Partner"><br><br><button class="btn" onclick="saveNames()">Kaydet ❤️</button></div></section>
 <nav class="nav"><button onclick="show('home')"><span>⌂</span>Ana Sayfa</button><button onclick="show('connect')"><span>♥</span>Oyna</button><button onclick="show('result')"><span>🏆</span>Skor</button><button onclick="show('profile')"><span>⚙</span>Ayarlar</button></nav>
 <div id="toast" class="toast"></div></div>
 <script>
@@ -101,5 +103,44 @@ function applyResolved(r){if(isHost){myScore=r.hs;otherScore=r.gs}else{myScore=r
 function finishNetwork(){show('result');document.getElementById('myFinal').textContent=myScore;document.getElementById('partnerFinal').textContent=otherScore;document.getElementById('resultTitle').textContent=myScore===otherScore?'Berabere! ❤️':myScore>otherScore?'Sen kazandın! 🏆':'Partnerin kazandı! 🏆'}
 function saveNames(){localStorage.setItem('myName',document.getElementById('myName').value||'Özkan');localStorage.setItem('partnerName',document.getElementById('partnerName').value||'Partner');toast('Kaydedildi ❤️')}
 document.getElementById('myName').value=localStorage.getItem('myName')||'Özkan';document.getElementById('partnerName').value=localStorage.getItem('partnerName')||'Partner';
+const APP_VERSION='1.1.0';
+function setVersionUI(text,showButton){
+  const el=document.getElementById('appVersionText');
+  const btn=document.getElementById('updateBtn');
+  if(el)el.textContent=text;
+  if(btn)btn.classList.toggle('hidden',!showButton);
+}
+async function checkForUpdate(){
+  if(!('serviceWorker' in navigator))return;
+  try{
+    const reg=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
+    await reg.update();
+    if(reg.waiting){
+      setVersionUI('🆕 Yeni sürüm hazır',true);
+    }else{
+      setVersionUI('v'+APP_VERSION+' • Güncel',false);
+    }
+  }catch(e){
+    console.warn('Güncelleme kontrolü:',e);
+  }
+}
+function applyAppUpdate(){
+  if(window.__swWaiting){
+    window.__swWaiting.postMessage({type:'SKIP_WAITING'});
+  }else{
+    location.reload();
+  }
+}
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('controllerchange',()=>location.reload());
+  navigator.serviceWorker.addEventListener('message',e=>{
+    if(e.data&&e.data.type==='NEW_VERSION'){
+      window.__swWaiting=navigator.serviceWorker.controller;
+      setVersionUI('🆕 Yeni sürüm hazır',true);
+    }
+  });
+}
+window.addEventListener('load',()=>setTimeout(checkForUpdate,500));
+
 </script>
 </body></html>
